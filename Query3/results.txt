@@ -1,0 +1,86 @@
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [LAT#43, LON#44, Rpt Dist No#23, Vict Descent#30, year#74, Zip Code#194, Community#155, Estimated Median Income#160]
+   +- CartesianProduct ((knownfloatingpointnormalized(normalizenanandzero(LAT#43)) = knownfloatingpointnormalized(normalizenanandzero(LAT#182))) AND (knownfloatingpointnormalized(normalizenanandzero(LON#44)) = knownfloatingpointnormalized(normalizenanandzero(LON#183))))
+      :- Project [Rpt Dist No#23, Vict Descent#30, LAT#43, LON#44, cast(split(split(DATE OCC#19,  , -1)[0], /, -1)[2] as int) AS year#74]
+      :  +- Filter ((((isnotnull(DATE OCC#19) AND isnotnull(Vict Descent#30)) AND (cast(split(split(DATE OCC#19,  , -1)[0], /, -1)[2] as int) = 2015)) AND isnotnull(LAT#43)) AND isnotnull(LON#44))
+      :     +- FileScan csv [DATE OCC#19,Rpt Dist No#23,Vict Descent#30,LAT#43,LON#44] Batched: false, DataFilters: [isnotnull(DATE OCC#19), isnotnull(Vict Descent#30), (cast(split(split(DATE OCC#19,  , -1)[0], /,..., Format: CSV, Location: InMemoryFileIndex(1 paths)[hdfs://master:9000/home/user/Assignment/Data/csv/Crime_Data_from_2010_..., PartitionFilters: [], PushedFilters: [IsNotNull(DATE OCC), IsNotNull(Vict Descent), IsNotNull(LAT), IsNotNull(LON)], ReadSchema: struct<DATE OCC:string,Rpt Dist No:int,Vict Descent:string,LAT:double,LON:double>
+      +- Project [Zip Code#194, LAT#182, LON#183, Community#155, Estimated Median Income#160]
+         +- BroadcastHashJoin [Zip Code#194], [Zip Code#154], Inner, BuildRight, false
+            :- Project [LAT#182, LON#183, pythonUDF0#227 AS Zip Code#194]
+            :  +- Filter isnotnull(pythonUDF0#227)
+            :     +- BatchEvalPython [extract_first_zip(agg#226)#193], [pythonUDF0#227]
+            :        +- SortAggregate(key=[LAT#182, LON#183], functions=[first(Zip Code#188, false)])
+            :           +- Sort [LAT#182 ASC NULLS FIRST, LON#183 ASC NULLS FIRST], false, 0
+            :              +- Exchange hashpartitioning(LAT#182, LON#183, 200), ENSURE_REQUIREMENTS, [plan_id=127]
+            :                 +- SortAggregate(key=[knownfloatingpointnormalized(normalizenanandzero(LAT#182)) AS LAT#182, knownfloatingpointnormalized(normalizenanandzero(LON#183)) AS LON#183], functions=[partial_first(Zip Code#188, false)])
+            :                    +- Sort [knownfloatingpointnormalized(normalizenanandzero(LAT#182)) AS LAT#182 ASC NULLS FIRST, knownfloatingpointnormalized(normalizenanandzero(LON#183)) AS LON#183 ASC NULLS FIRST], false, 0
+            :                       +- Project [LAT#182, LON#183, ZIPcode#184 AS Zip Code#188]
+            :                          +- Filter (isnotnull(LAT#182) AND isnotnull(LON#183))
+            :                             +- FileScan csv [LAT#182,LON#183,ZIPcode#184] Batched: false, DataFilters: [isnotnull(LAT#182), isnotnull(LON#183)], Format: CSV, Location: InMemoryFileIndex(1 paths)[hdfs://master:9000/home/user/Assignment/Data/csv/revgecoding.csv], PartitionFilters: [], PushedFilters: [IsNotNull(LAT), IsNotNull(LON)], ReadSchema: struct<LAT:double,LON:double,ZIPcode:string>
+            +- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[0, int, false] as bigint)),false), [plan_id=134]
+               +- Filter isnotnull(Zip Code#154)
+                  +- TakeOrderedAndProject(limit=3, orderBy=[Estimated Median Income#160 ASC NULLS FIRST], output=[Zip Code#154,Community#155,Estimated Median Income#160])
+                     +- Project [Zip Code#154, Community#155, cast(regexp_replace(Estimated Median Income#156, [$,], , 1) as float) AS Estimated Median Income#160]
+                        +- Filter (isnotnull(Community#155) AND StartsWith(Community#155, Los Angeles))
+                           +- FileScan csv [Zip Code#154,Community#155,Estimated Median Income#156] Batched: false, DataFilters: [isnotnull(Community#155), StartsWith(Community#155, Los Angeles)], Format: CSV, Location: InMemoryFileIndex(1 paths)[hdfs://master:9000/home/user/Assignment/Data/csv/LA_income_2015.csv], PartitionFilters: [], PushedFilters: [IsNotNull(Community), StringStartsWith(Community,Los Angeles)], ReadSchema: struct<Zip Code:int,Community:string,Estimated Median Income:string>
+
+
+None
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [LAT#43, LON#44, Rpt Dist No#23, Vict Descent#30, year#74, Zip Code#194, Community#155, Estimated Median Income#160]
+   +- CartesianProduct ((knownfloatingpointnormalized(normalizenanandzero(LAT#43)) = knownfloatingpointnormalized(normalizenanandzero(LAT#182))) AND (knownfloatingpointnormalized(normalizenanandzero(LON#44)) = knownfloatingpointnormalized(normalizenanandzero(LON#183))))
+      :- Project [Rpt Dist No#23, Vict Descent#30, LAT#43, LON#44, cast(split(split(DATE OCC#19,  , -1)[0], /, -1)[2] as int) AS year#74]
+      :  +- Filter ((((isnotnull(DATE OCC#19) AND isnotnull(Vict Descent#30)) AND (cast(split(split(DATE OCC#19,  , -1)[0], /, -1)[2] as int) = 2015)) AND isnotnull(LAT#43)) AND isnotnull(LON#44))
+      :     +- FileScan csv [DATE OCC#19,Rpt Dist No#23,Vict Descent#30,LAT#43,LON#44] Batched: false, DataFilters: [isnotnull(DATE OCC#19), isnotnull(Vict Descent#30), (cast(split(split(DATE OCC#19,  , -1)[0], /,..., Format: CSV, Location: InMemoryFileIndex(1 paths)[hdfs://master:9000/home/user/Assignment/Data/csv/Crime_Data_from_2010_..., PartitionFilters: [], PushedFilters: [IsNotNull(DATE OCC), IsNotNull(Vict Descent), IsNotNull(LAT), IsNotNull(LON)], ReadSchema: struct<DATE OCC:string,Rpt Dist No:int,Vict Descent:string,LAT:double,LON:double>
+      +- Project [Zip Code#194, LAT#182, LON#183, Community#155, Estimated Median Income#160]
+         +- BroadcastHashJoin [Zip Code#194], [Zip Code#154], Inner, BuildRight, false
+            :- Project [LAT#182, LON#183, pythonUDF0#235 AS Zip Code#194]
+            :  +- Filter isnotnull(pythonUDF0#235)
+            :     +- BatchEvalPython [extract_first_zip(agg#234)#193], [pythonUDF0#235]
+            :        +- SortAggregate(key=[LAT#182, LON#183], functions=[first(Zip Code#188, false)])
+            :           +- Sort [LAT#182 ASC NULLS FIRST, LON#183 ASC NULLS FIRST], false, 0
+            :              +- Exchange hashpartitioning(LAT#182, LON#183, 200), ENSURE_REQUIREMENTS, [plan_id=209]
+            :                 +- SortAggregate(key=[knownfloatingpointnormalized(normalizenanandzero(LAT#182)) AS LAT#182, knownfloatingpointnormalized(normalizenanandzero(LON#183)) AS LON#183], functions=[partial_first(Zip Code#188, false)])
+            :                    +- Sort [knownfloatingpointnormalized(normalizenanandzero(LAT#182)) AS LAT#182 ASC NULLS FIRST, knownfloatingpointnormalized(normalizenanandzero(LON#183)) AS LON#183 ASC NULLS FIRST], false, 0
+            :                       +- Project [LAT#182, LON#183, ZIPcode#184 AS Zip Code#188]
+            :                          +- Filter (isnotnull(LAT#182) AND isnotnull(LON#183))
+            :                             +- FileScan csv [LAT#182,LON#183,ZIPcode#184] Batched: false, DataFilters: [isnotnull(LAT#182), isnotnull(LON#183)], Format: CSV, Location: InMemoryFileIndex(1 paths)[hdfs://master:9000/home/user/Assignment/Data/csv/revgecoding.csv], PartitionFilters: [], PushedFilters: [IsNotNull(LAT), IsNotNull(LON)], ReadSchema: struct<LAT:double,LON:double,ZIPcode:string>
+            +- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[0, int, false] as bigint)),false), [plan_id=216]
+               +- Filter isnotnull(Zip Code#154)
+                  +- TakeOrderedAndProject(limit=3, orderBy=[Estimated Median Income#160 DESC NULLS LAST], output=[Zip Code#154,Community#155,Estimated Median Income#160])
+                     +- Project [Zip Code#154, Community#155, cast(regexp_replace(Estimated Median Income#156, [$,], , 1) as float) AS Estimated Median Income#160]
+                        +- Filter (isnotnull(Community#155) AND StartsWith(Community#155, Los Angeles))
+                           +- FileScan csv [Zip Code#154,Community#155,Estimated Median Income#156] Batched: false, DataFilters: [isnotnull(Community#155), StartsWith(Community#155, Los Angeles)], Format: CSV, Location: InMemoryFileIndex(1 paths)[hdfs://master:9000/home/user/Assignment/Data/csv/LA_income_2015.csv], PartitionFilters: [], PushedFilters: [IsNotNull(Community), StringStartsWith(Community,Los Angeles)], ReadSchema: struct<Zip Code:int,Community:string,Estimated Median Income:string>
+
+
+None
++------------------------------+-------------+
+|victim descent                |total victims|
++------------------------------+-------------+
+|Hispanic/Latin/Mexican        |1550         |
+|Black                         |1093         |
+|White                         |705          |
+|Other                         |400          |
+|Other Asian                   |104          |
+|Unknown                       |65           |
+|Korean                        |9            |
+|Japanese                      |3            |
+|American Indian/Alaskan Native|3            |
+|Filipino                      |2            |
+|Chinese                       |2            |
++------------------------------+-------------+
+
++----------------------+-------------+
+|victim descent        |total victims|
++----------------------+-------------+
+|White                 |763          |
+|Other                 |318          |
+|Hispanic/Latin/Mexican|123          |
+|Black                 |44           |
+|Unknown               |39           |
+|Other Asian           |24           |
+|Chinese               |2            |
++----------------------+-------------+
+
